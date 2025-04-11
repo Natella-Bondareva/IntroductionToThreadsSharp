@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IntroductionToThreads
 {
@@ -8,11 +9,16 @@ namespace IntroductionToThreads
     {
         static void Main(string[] args)
         {
-            int[] delays = { 5000, 8000, 3000 };
-            double[] steps = { 1, 2, 3 };
+            int[] delays = { 5000, 8000, 3000, 5000, 10000, 2000, 9000 };
+            double[] steps = { 1, 2, 3, 4, 5, 6, 7 };
 
             List<StopSignal> signals = new List<StopSignal>();
             List<Thread> threads = new List<Thread>();
+
+            int[][] indexedArray = delays
+                .Select((value, index) => new int[] { value, index }) 
+                .OrderBy(item => item[0]) 
+                .ToArray();
 
             for (int i = 0; i < delays.Length; i++)
             {
@@ -27,7 +33,7 @@ namespace IntroductionToThreads
                 thread.Start();
             }
 
-            ThreadManager manager = new ThreadManager(signals, delays);
+            ThreadManager manager = new ThreadManager(signals, indexedArray);
             Thread managerThread = new Thread(manager.Run);
             managerThread.Start();
 
@@ -37,6 +43,7 @@ namespace IntroductionToThreads
             //}
 
             //managerThread.Join();
+            Console.WriteLine("Main out");
         }
         static void Addder(int id, double step, StopSignal signal)
         {
@@ -47,11 +54,12 @@ namespace IntroductionToThreads
             {
                 sum += step;
                 count++;
-                // Thread.Sleep(1); 
+                Thread.Sleep(1);
             }
 
             Console.WriteLine($"Потік {id}: сума = {sum}, доданків = {count}");
         }
     }
 }
+
 

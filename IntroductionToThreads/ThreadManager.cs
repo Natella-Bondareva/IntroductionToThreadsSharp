@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace IntroductionToThreads
 {
     public class ThreadManager
     {
         private readonly List<StopSignal> _signals;
-        private readonly int[] _delays;
+        private readonly int[][] _delays;
 
-        public ThreadManager(List<StopSignal> signals, int[] delays)
+        public ThreadManager(List<StopSignal> signals, int[][] delays)
         {
             _signals = signals;
             _delays = delays;
@@ -19,24 +17,18 @@ namespace IntroductionToThreads
 
         public void Run()
         {
-            List<Thread> timerThreads = new List<Thread>();
-
-            for (int i = 0; i < _signals.Count; i++)
+            for (int i = 0; i < _delays.Length; i++)
             {
-                int index = i;
-                Thread t = new Thread(() =>
-                {
-                    Thread.Sleep(_delays[index]);
-                    _signals[index].RequestStop();
-                });
-                t.Start();
-                timerThreads.Add(t);
-            }
+                int waitTime;
+                if (i == 0)
+                    waitTime = _delays[i][0];
+                else
+                    waitTime = _delays[i][0] - _delays[i - 1][0]; 
 
-            //foreach (var t in timerThreads)
-            //{
-            //    t.Join();
-            //}
+                Thread.Sleep(waitTime);
+                int index = _delays[i][1]; // індекс сигналу
+                _signals[index].RequestStop();
+            }
         }
     }
 }
